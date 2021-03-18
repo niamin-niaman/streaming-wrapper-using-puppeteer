@@ -20,7 +20,7 @@ async function main() {
 
     // CLASS PATTERN
     const steaming = await new Streaming(browser, BROKER, USER_NAME, PASSWORD)
-    steaming.getQuote('BANPU')
+
 
     // TRADDITIONAL PATTEN
     // const streaming_page = await sm.logIn(browser, BROKER, USER_NAME, PASSWORD)

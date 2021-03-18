@@ -183,6 +183,56 @@ class Streaming {
         return [price, bid_offer[0]]
         // https://www.javascripttutorial.net/javascript-return-multiple-values/
     }
+
+    getTicker = async () => {
+
+        return new Promise(async (resolve, reject) => {
+
+            console.log('Select ticker tab');
+            const ticker_tab_selector = 'div[name="menu-item-5"]'
+            const ticker_tab = await this.streaming_page.$(ticker_tab_selector)
+            ticker_tab.click()
+
+            console.log('Get ticker data');
+            let ticker_data = []
+            let try_counter = 0
+            while (true) {
+                try {
+                    console.log('Select ticker rows');
+                    const ticker_data_selector = '#page-5-container > li > market-ticker-page > div.body.ng-scope'
+                    await this.streaming_page.waitForSelector(ticker_data_selector)
+                    // console.log(ticker_data_selector);
+                    ticker_data = await this.streaming_page.$$eval(ticker_data_selector, rows => {
+                        // console.log('rows ', rows);
+                        return Array.from(rows, row => {
+                            // console.log('row ', row);
+                            const columns = row.querySelectorAll('market-ticker-page-row');
+                            // return Array.from(columns, column => column.innerText);
+                            return Array.from(columns, cell => {
+                                const cells = cell.querySelectorAll('li');
+                                return Array.from(cells, cell => cell.innerText);
+                            });
+                        });
+                    });
+
+                    console.log(ticker_data);
+                } catch (error) {
+                    await this.streaming_page.waitForTimeout(1000)
+                    try_counter += 1
+                    console.log('Error : ', error.message);
+                    console.log('Counter : ', try_counter);
+                    if (try_counter == 3) break;
+                }
+            }
+
+
+            return resolve(ticker_data)
+
+        });
+
+    }
+
+
 }
 
 
@@ -190,12 +240,13 @@ const main = async () => {
     const browser = await puppeteer.launch({ headless: false, defaultViewport: null });
 
     const steaming = await new Streaming(browser, BROKER, USER_NAME, PASSWORD)
-    steaming.getQuote('BANPU')
+    // await steaming.getQuote('BANPU')
+    await steaming.getTicker()
 }
 
 // https://stackoverflow.com/a/6090287/13080067
 if (require.main === module) {
-    
+
     main()
 }
 
