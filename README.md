@@ -13,7 +13,7 @@ Wrapper สำหรับใช้งาน Streaming ผ่าน Puppeteer �
 - อยู่ในระหว่าง Refactor code ใหเป็น Class Perttern
 # getting started
 
-- clone this project
+- Clone project
 - ใช้คำสั่ง
 
 ```
