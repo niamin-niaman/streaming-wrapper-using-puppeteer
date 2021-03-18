@@ -1,10 +1,10 @@
 # streaming-wrapper-using-puppeteer
 
-<div style="display:flex; justify-content:center; align-items:center;" align="center">
+<p style="display:flex; justify-content:center; align-items:center;" align="center">
   <a href="https://pptr.dev/" target="blank"><img src="https://user-images.githubusercontent.com/10379601/29446482-04f7036a-841f-11e7-9872-91d1fc2ea683.png" width="120" alt="Puppeteer Logo" /></a>
   <img src="./img/x.png" width="20" alt="x" />
   <img src="./img/streaming.png" width="120" alt="Streaming Logo" />
-</div>
+</p>
 
 Wrapper สำหรับใช้งาน Streaming ผ่าน Puppeteer ที่จะช่วยให้การบันทึกข้อมูลจาก Portfolio หรือ ซื้อขายได้ง่ายขึ้น
 
