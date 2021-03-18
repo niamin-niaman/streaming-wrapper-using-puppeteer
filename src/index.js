@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 
 // Local Library
 const sm = require('./streaming');
+const { Streaming } = require('./StreamingClass')
 
 // Credential
 const env = dotenv.config().parsed
@@ -17,10 +18,14 @@ async function main() {
 
     const browser = await puppeteer.launch({ headless: false, defaultViewport: null });
 
-    const streaming_page = await sm.logIn(browser, BROKER, USER_NAME, PASSWORD)
+    // CLASS PATTERN
+    const steaming = await new Streaming(browser, BROKER, USER_NAME, PASSWORD)
+    steaming.getQuote('BANPU')
 
-    const portfolio = await sm.getPortfolio(streaming_page, 0)
-    console.log(portfolio);
+    // TRADDITIONAL PATTEN
+    // const streaming_page = await sm.logIn(browser, BROKER, USER_NAME, PASSWORD)
+    // const portfolio = await sm.getPortfolio(streaming_page, 0)
+    // console.log(portfolio);
 
 }
 

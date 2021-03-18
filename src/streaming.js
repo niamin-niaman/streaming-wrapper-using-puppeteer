@@ -873,7 +873,10 @@ async function main() {
     // await streaming_page.close()
 }
 
-// main()
+if (require.main === module) {
+
+    main()
+}
 
 module.exports = {
     logIn: logIn,
