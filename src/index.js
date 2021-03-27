@@ -75,8 +75,6 @@ class Streaming {
       await (await page.$x("//span[contains(., '" + broker + "')]"))[0].click();
 
       // type user , password
-      // await page.type('#txtLogin', '29211')
-      // await page.type('#txtPassword', 'Kkk333')
       await page.type("#txtLogin", user_name);
       await page.type("#txtPassword", password);
 
@@ -224,7 +222,8 @@ class Streaming {
 
     // console.log(detail_data[0]);
 
-    return [price, bid_offer[0]];
+    // return [price, bid_offer[0]];
+    return { price: price, bid_offer: bid_offer[0], detail: detail_data[0] };
     // https://www.javascripttutorial.net/javascript-return-multiple-values/
   };
 
@@ -305,7 +304,7 @@ const main = async () => {
 
   const streaming = await new Streaming(browser, BROKER, USER_NAME, PASSWORD);
 
-  await streaming.getQuote("BANPU");
+  const { price, bid_offer, detail } = await streaming.getQuote("BANPU");
 
   //   await streaming.newPage();
 
