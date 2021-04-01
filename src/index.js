@@ -9,7 +9,7 @@ const USER_NAME = env.USER_NAME;
 const PASSWORD = env.PASSWORD;
 
 class Streaming {
-  constructor(browser, broker, user_name, password) {
+  constructor(browser, broker, user_name, password, streaming_page = null) {
     // https://stackoverflow.com/a/50885340/13080067
     return (async () => {
       this.browser = browser;
@@ -17,12 +17,16 @@ class Streaming {
       this.user_name = user_name;
       this.password = password;
       this.streaming_page = [];
-      this.streaming_page[0] = await this.logIn(
-        this.browser,
-        this.broker,
-        this.user_name,
-        this.password
-      );
+      if (streaming_page == null) {
+        this.streaming_page[0] = await this.logIn(
+          this.browser,
+          this.broker,
+          this.user_name,
+          this.password
+        );
+      } else {
+        this.streaming_page[0] = streaming_page;
+      }
       // compute properties
       this.pageNumbers = this.streaming_page.length + 1;
 
@@ -292,6 +296,9 @@ class Streaming {
     }
     await page.bringToFront();
     this.streaming_page.push(page);
+
+    const new_streaming = new Streaming(null, null, null, null, page);
+    return new_streaming;
   };
 }
 
@@ -302,13 +309,20 @@ const main = async () => {
     defaultViewport: null,
   });
 
-  const streaming = await new Streaming(browser, BROKER, USER_NAME, PASSWORD);
+  let streaming = [];
 
-  const { price, bid_offer, detail } = await streaming.getQuote("BANPU");
+  // const streaming = await new Streaming(browser, BROKER, USER_NAME, PASSWORD);
+  streaming.push(await new Streaming(browser, BROKER, USER_NAME, PASSWORD));
+
+  let { price, bid_offer, detail } = await streaming[0].getQuote("BANPU");
 
   console.log("price : ", price);
   console.log("bid offer : ", bid_offer);
   console.log("detail : ", detail);
+
+  streaming.push(await streaming[0].newPage());
+
+  price, bid_offer, (detail = await streaming[1].getQuote("AOT"));
 
   //   await streaming.newPage();
 
