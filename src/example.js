@@ -24,17 +24,18 @@ async function main() {
   });
 
   // CLASS PATTERN
-  const steaming = await new Streaming(browser, BROKER, USER_NAME, PASSWORD);
+  let streaming = []
+  streaming.push(await new Streaming(browser, BROKER, USER_NAME, PASSWORD));
 
   app.get("/qoute", async (req, res) => {
-    const { price, bid_offer, detail } = await steaming.getQuote("BANPU");
+    const { price, bid_offer, detail } = await steaming[0].getQuote("BANPU");
     console.log("price : ", price);
     console.log("bid offer : ", bid_offer);
     console.log("detail : ", detail);
     res.send("ok");
   });
   app.get("/ticker", async (req, res) => {
-    const ticker = await steaming.getTicker();
+    const ticker = await steaming[0].getTicker();
     console.log("ticker : ", ticker);
     res.send("ok");
   });
