@@ -146,7 +146,7 @@ class Streaming {
         });
         await qoute_input.type(symbol, { delay: 100 });
         await qoute_input.press("Enter", { delay: 100 });
-        await this.streaming_page[n].waitForTimeout(3000);
+        // await this.streaming_page[n].waitForTimeout(3000);
 
         break;
       } catch (error) {
@@ -305,6 +305,10 @@ const main = async () => {
   const streaming = await new Streaming(browser, BROKER, USER_NAME, PASSWORD);
 
   const { price, bid_offer, detail } = await streaming.getQuote("BANPU");
+
+  console.log("price : ", price);
+  console.log("bid offer : ", bid_offer);
+  console.log("detail : ", detail);
 
   //   await streaming.newPage();
 
