@@ -114,12 +114,16 @@ class Streaming {
   };
 
   getQuote = async (symbol, n = 0) => {
-    console.log("Select quote tab");
+    process.stdout.write("Get Quote : ");
+    process.stdout.write(symbol);
+    // console.log("Select quote tab");
+    process.stdout.write(" .");
     const qoute_tab_selector = 'div[name="menu-item-2"]';
     const qoute_tab = await this.streaming_page[n].$(qoute_tab_selector);
     qoute_tab.click();
 
-    console.log("Click qoute symbol input");
+    // console.log("Click qoute symbol input");
+    process.stdout.write(" .");
     const qoute_input_box_selecotr = "#quote-symbol > div";
     while (true) {
       try {
@@ -136,7 +140,8 @@ class Streaming {
       }
     }
 
-    console.log('Type : "' + symbol + '"');
+    // console.log('Type : "' + symbol + '"');
+    process.stdout.write(" .");
     const qoute_input_selector =
       '#quote-symbol > auto-complete > div > input[name="symbol"]';
     while (true) {
@@ -160,7 +165,8 @@ class Streaming {
       }
     }
 
-    console.log("Get price");
+    // console.log("Get price");
+    process.stdout.write(" .");
     let price;
     let qoute_price_selector =
       "#page-2-container > li > quote > div > div > div.tab-pane.ng-scope.active > quote-intraday > quote-info > div.col-53.quote-overview-and-bids-offers.component-seperator-bottom > div > div > div.price.col-10.ng-binding";
@@ -177,12 +183,14 @@ class Streaming {
         break;
       } catch (error) {
         await this.streaming_page[n].waitForTimeout(500);
-        console.log("Error : ", error.message);
+        process.stdout.write("\nError : ");
+        process.stdout.write(error.message);
       }
     }
     // console.log(price);
 
-    console.log("Get bid offer");
+    // console.log("Get bid offer");
+    process.stdout.write(" .");
     const bid_offer = await this.streaming_page[n].$$eval(
       "#page-2-container > li > quote > div > div > div.tab-pane.ng-scope.active > quote-intraday > quote-info > div.col-53.quote-overview-and-bids-offers.component-seperator-bottom > bid-offer",
       (rows) => {
@@ -198,7 +206,8 @@ class Streaming {
     );
     // console.log(bid_offer[0]);
 
-    console.log("Get detail data");
+    // console.log("Get detail data");
+    process.stdout.write(" .");
     let detail_data = [];
     const detail_data_selector =
       "#page-2-container > li > quote > div > div > div.tab-pane.ng-scope.active > quote-intraday > quote-info > div.col-106.row-21.quote-detail.component-seperator-left > div.col-106.row-16.quote-detail-data > div > div > div";
@@ -226,8 +235,60 @@ class Streaming {
 
     // console.log(detail_data[0]);
 
+    // click "By Date" tab
+    // console.log("Get by date data");
+    process.stdout.write(" .");
+    const by_date_tab_selector =
+      "#page-2-container > li > quote > div > div > div.tab-pane.ng-scope.active > quote-intraday > div > div.col-107.row-33.quote-intraday-tabs-block.component-seperator-left > quote-intraday-tabs > div > ul > li.row-3.col-13.tab-by-date.uib-tab.nav-item.ng-scope.ng-isolate-scope";
+    const by_date_tab = await this.streaming_page[n].$(by_date_tab_selector);
+    by_date_tab.click();
+
+    let by_date_data = [];
+    const by_date_data_selector =
+      "#page-2-container > li > quote > div > div > div.tab-pane.ng-scope.active > quote-intraday > div > div.col-107.row-33.quote-intraday-tabs-block.component-seperator-left > quote-intraday-tabs > div > div > div.tab-pane.ng-scope.active > quote-historical-by-date > div > ul.row-26.scroll-container.ng-scope";
+    await this.streaming_page[n].waitForSelector(by_date_data_selector);
+
+    // TODO scroll down to get all element
+    // https://stackoverflow.com/questions/52030394/how-to-scroll-inside-a-div-with-puppeteer
+    while (true) {
+      try {
+        by_date_data = await this.streaming_page[n].$$eval(
+          by_date_data_selector,
+          (rows) => {
+            // console.log('rows ', rows);
+            return Array.from(rows, (row) => {
+              // console.log('row ', row);
+              const columns = row.querySelectorAll("quote-equity-by-date-row");
+              // return Array.from(columns, column => column.innerText);
+              return Array.from(columns, (cell) => {
+                const cells = cell.querySelectorAll("li");
+                return Array.from(cells, (cell) => cell.innerText);
+                // return Array.from(cells, (cell) => {
+                //   const items = cell.querySelectorAll("li");
+                //   return Array.from(items, (item) => item.innerText);
+                // });
+              });
+            });
+          }
+        );
+
+        if (!isEmpty(by_date_data)) break;
+      } catch (error) {
+        await this.streaming_page[n].waitForTimeout(500);
+        process.stdout.write("\nError : ");
+        process.stdout.write(error.message);
+      }
+    }
+    // console.log(by_date_data[0]);
+
     // return [price, bid_offer[0]];
-    return { price: price, bid_offer: bid_offer[0], detail: detail_data[0] };
+    console.log();
+    return {
+      price: price,
+      bid_offer: bid_offer[0],
+      detail: detail_data[0],
+      by_date: by_date_data[0],
+    };
     // https://www.javascripttutorial.net/javascript-return-multiple-values/
   };
 
@@ -302,6 +363,10 @@ class Streaming {
   };
 }
 
+isEmpty = (array) => {
+  return Array.isArray(array) && (array.length == 0 || array.every(isEmpty));
+};
+
 const main = async () => {
   const headless = false;
   const browser = await puppeteer.launch({
@@ -314,15 +379,18 @@ const main = async () => {
   // const streaming = await new Streaming(browser, BROKER, USER_NAME, PASSWORD);
   streaming.push(await new Streaming(browser, BROKER, USER_NAME, PASSWORD));
 
-  let { price, bid_offer, detail } = await streaming[0].getQuote("BANPU");
+  let { price, bid_offer, detail, by_date } = await streaming[0].getQuote(
+    "BANPU"
+  );
 
   console.log("price : ", price);
   console.log("bid offer : ", bid_offer);
   console.log("detail : ", detail);
+  console.log("by_date : ", by_date);
 
-  streaming.push(await streaming[0].newPage());
+  // streaming.push(await streaming[0].newPage());
 
-  price, bid_offer, (detail = await streaming[1].getQuote("AOT"));
+  // price, bid_offer, (detail = await streaming[1].getQuote("AOT"));
 
   //   await streaming.newPage();
 
