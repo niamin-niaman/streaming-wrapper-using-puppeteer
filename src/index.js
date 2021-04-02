@@ -288,13 +288,18 @@ class Streaming {
     process.stdout.write(" .");
     const percent_buy_sell_toggle_selector =
       "#page-2-container > li > quote > div > div > div.tab-pane.ng-scope.active > quote-intraday > div > div.col-53.row-33.quote-intraday-chart-block > quote-toggle1 > div > div.btn-group.mode-switch > label.btn.btn-mode-switch.toggle-button-2.ng-pristine.ng-untouched.ng-valid.ng-not-empty";
-    await this.streaming_page[n].waitForSelector(
-      percent_buy_sell_toggle_selector
-    );
-    const percent_buy_sell_toggle = await this.streaming_page[n].$(
-      percent_buy_sell_toggle_selector
-    );
-    percent_buy_sell_toggle.click();
+    // await this.streaming_page[n].waitForSelector(
+    //   percent_buy_sell_toggle_selector
+    // );
+    try {
+      const percent_buy_sell_toggle = await this.streaming_page[n].$(
+        percent_buy_sell_toggle_selector
+      );
+      percent_buy_sell_toggle.click();
+    } catch (error) {
+      console.log("\nError : ", error.message);
+      console.log("skip !!");
+    }
     let symbol_percent_buy_sell = [];
     let sector_percent_buy_sell = [];
     let market_percent_buy_sell = [];
