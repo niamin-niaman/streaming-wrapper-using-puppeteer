@@ -280,6 +280,107 @@ class Streaming {
       }
     }
     // console.log(by_date_data[0]);
+    by_date_data[0].pop();
+    by_date_data[0].shift();
+
+    // get percent_buy_sell
+    // console.log("\nGet percent buy sell");
+    process.stdout.write(" .");
+    const percent_buy_sell_toggle_selector =
+      "#page-2-container > li > quote > div > div > div.tab-pane.ng-scope.active > quote-intraday > div > div.col-53.row-33.quote-intraday-chart-block > quote-toggle1 > div > div.btn-group.mode-switch > label.btn.btn-mode-switch.toggle-button-2.ng-pristine.ng-untouched.ng-valid.ng-not-empty";
+    await this.streaming_page[n].waitForSelector(
+      percent_buy_sell_toggle_selector
+    );
+    const percent_buy_sell_toggle = await this.streaming_page[n].$(
+      percent_buy_sell_toggle_selector
+    );
+    percent_buy_sell_toggle.click();
+    let symbol_percent_buy_sell = [];
+    let sector_percent_buy_sell = [];
+    let market_percent_buy_sell = [];
+    const symbol_percent_buy_sell_data_selector =
+      "#vol-buy-sell-0 > div.col-35.row-4";
+    while (true) {
+      try {
+        symbol_percent_buy_sell = await this.streaming_page[n].$$eval(
+          symbol_percent_buy_sell_data_selector,
+          (rows) => {
+            return Array.from(rows, (row) => {
+              let columns = row.querySelectorAll("div");
+              return Array.from(columns, (column) => {
+                cells = column.querySelectorAll("div");
+                return Array.from(cells, (cell) => cell.innerText);
+              });
+            });
+          }
+        );
+        if (!isEmpty(symbol_percent_buy_sell)) break;
+      } catch (error) {
+        await this.streaming_page[n].waitForTimeout(500);
+        process.stdout.write("\nError : ");
+        process.stdout.write(error.message);
+      }
+    }
+    symbol_percent_buy_sell = symbol_percent_buy_sell[0].filter(
+      (v) => !isEmpty(v)
+    );
+    // console.log(symbol_percent_buy_sell);
+    // Get sector percent buy sell
+    const sector_percent_buy_sell_data_selector =
+      "#vol-buy-sell-1 > div.col-35.row-4";
+    while (true) {
+      try {
+        sector_percent_buy_sell = await this.streaming_page[n].$$eval(
+          sector_percent_buy_sell_data_selector,
+          (rows) => {
+            return Array.from(rows, (row) => {
+              let columns = row.querySelectorAll("div");
+              return Array.from(columns, (column) => {
+                cells = column.querySelectorAll("div");
+                return Array.from(cells, (cell) => cell.innerText);
+              });
+            });
+          }
+        );
+        if (!isEmpty(sector_percent_buy_sell)) break;
+      } catch (error) {
+        await this.streaming_page[n].waitForTimeout(500);
+        process.stdout.write("\nError : ");
+        process.stdout.write(error.message);
+      }
+    }
+    sector_percent_buy_sell = sector_percent_buy_sell[0].filter(
+      (v) => !isEmpty(v)
+    );
+    // console.log(sector_percent_buy_sell);
+    // Get market percent buy sell
+    const market_percent_buy_sell_data_selector =
+      "#vol-buy-sell-2 > div.col-35.row-4";
+    while (true) {
+      try {
+        market_percent_buy_sell = await this.streaming_page[n].$$eval(
+          market_percent_buy_sell_data_selector,
+          (rows) => {
+            return Array.from(rows, (row) => {
+              let columns = row.querySelectorAll("div");
+              return Array.from(columns, (column) => {
+                cells = column.querySelectorAll("div");
+                return Array.from(cells, (cell) => cell.innerText);
+              });
+            });
+          }
+        );
+        if (!isEmpty(market_percent_buy_sell)) break;
+      } catch (error) {
+        await this.streaming_page[n].waitForTimeout(500);
+        process.stdout.write("\nError : ");
+        process.stdout.write(error.message);
+      }
+    }
+    market_percent_buy_sell = market_percent_buy_sell[0].filter(
+      (v) => !isEmpty(v)
+    );
+    // console.log(market_percent_buy_sell);
 
     // return [price, bid_offer[0]];
     console.log();
@@ -288,6 +389,9 @@ class Streaming {
       bid_offer: bid_offer[0],
       detail: detail_data[0],
       by_date: by_date_data[0],
+      symbol_percent_buy_sell: symbol_percent_buy_sell,
+      sector_percent_buy_sell: sector_percent_buy_sell,
+      market_percent_buy_sell: market_percent_buy_sell,
     };
     // https://www.javascripttutorial.net/javascript-return-multiple-values/
   };
@@ -379,14 +483,23 @@ const main = async () => {
   // const streaming = await new Streaming(browser, BROKER, USER_NAME, PASSWORD);
   streaming.push(await new Streaming(browser, BROKER, USER_NAME, PASSWORD));
 
-  let { price, bid_offer, detail, by_date } = await streaming[0].getQuote(
-    "BANPU"
-  );
+  let {
+    price,
+    bid_offer,
+    detail,
+    by_date,
+    symbol_percent_buy_sell,
+    sector_percent_buy_sell,
+    market_percent_buy_sell,
+  } = await streaming[0].getQuote("BANPU");
 
   console.log("price : ", price);
   console.log("bid offer : ", bid_offer);
   console.log("detail : ", detail);
   console.log("by_date : ", by_date);
+  console.log("symbol_percent_buy_sell : ", symbol_percent_buy_sell);
+  console.log("sector_percent_buy_sell : ", sector_percent_buy_sell);
+  console.log("market_percent_buy_sell : ", market_percent_buy_sell);
 
   // streaming.push(await streaming[0].newPage());
 
