@@ -506,6 +506,18 @@ const main = async () => {
   console.log("sector_percent_buy_sell : ", sector_percent_buy_sell);
   console.log("market_percent_buy_sell : ", market_percent_buy_sell);
 
+  let avg_5d_volume = parseInt(
+    by_date
+      .slice(0, 5)
+      .reduce(
+        (sum, v, _, { length }) =>
+          sum + parseInt(v[5].replace(new RegExp(",", "g"), "")) / length,
+        0
+      )
+  );
+
+  console.log("5d_avg : ", avg_5d_volume);
+
   // streaming.push(await streaming[0].newPage());
 
   // price, bid_offer, (detail = await streaming[1].getQuote("AOT"));
